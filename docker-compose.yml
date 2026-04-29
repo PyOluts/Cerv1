@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  database:
+    image: mongo:6
+    container_name: todo_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: todo_server
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://database:27017/todos
+      - PORT=3000
+    depends_on:
+      - database
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: todo_client
+    ports:
+      - "5173:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo_data:
